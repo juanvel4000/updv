@@ -1,0 +1,31 @@
+[project]
+name = "updv"
+version = "0.1.0"
+
+[project.files.pyproject]
+path = "pyproject.toml"
+on-missing-file = "skip"
+on-no-match = "skip"
+line = 1
+enabled = false
+
+pattern = "version = \"{old}\""
+replacement = "version = \"{new}\""
+
+[project.files.initpy]
+path = "src/{name}/__init__.py"
+on-missing-file = "fail"
+on-no-match = "append"
+enabled = true
+
+pattern = "__version__ = \"{old}\""
+replacement = "__version__ = \"{new}\""
+
+[project.files.changelog]
+path = "CHANGELOG.md"
+on-missing-file = "create"
+on-no-match = "fail"
+enabled = true
+
+pattern = "## \\[Unreleased\\]"
+replacement = "## [{new}] - {date}"
