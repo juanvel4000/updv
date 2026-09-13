@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/juanvel4000/updv/main/schema/updv.schema.json",
+  "title": "updv config",
+  "description": "schema for updv.toml / .updv.toml configuration files",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "project name, usable as {name} in paths/patterns/replacements"
+        },
+        "version": {
+          "type": "string",
+          "description": "current project version, usable as {new} in paths/patterns/replacements"
+        },
+        "previous_version": {
+          "type": "string",
+          "description": "previous project version, usable as {old} in paths/patterns/replacements"
+        },
+        "files": {
+          "type": "object",
+          "description": "per-file update policies, keyed by an arbitrary identifier",
+          "patternProperties": {
+            "^[a-zA-Z0-9_-]+$": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "description": "target file path"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "whether the path is enabled"
+                },
+                "on-missing-file": {
+                  "type": "string",
+                  "enum": ["skip", "fail", "create"],
+                  "default": "skip"
+                },
+                "on-no-match": {
+                  "type": "string",
+                  "enum": ["skip", "append", "prepend", "write", "fail"],
+                  "default": "skip"
+                },
+                "line": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "if set, overwrite this 1-indexed line directly instead of using pattern replacement"
+                },
+                "pattern": {
+                  "type": "string",
+                  "description": "regex pattern to search for"
+                },
+                "replacement": {
+                  "type": "string",
+                  "description": "replacement text"
+                }
+              },
+              "required": ["path"]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["name", "version", "previous_version"]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["project"]
+}
