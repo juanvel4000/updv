@@ -5,11 +5,15 @@ description = "version string updater."
 readme = "README.md"
 license = "BSD-3-Clause"
 dependencies = [
+    "packaging",
 ]
 
 requires-python = ">=3.11"
 
 keywords = [
+    "build-tool",
+    "versioning",
+    "python"
 ]
 
 authors = [
@@ -46,7 +50,6 @@ build-backend = "hatchling.build"
 dev = [
     "pytest",
     "ruff",
-    "packaging",
 ]
 
 [project.scripts]

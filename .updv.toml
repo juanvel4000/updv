@@ -27,5 +27,5 @@ on-missing-file = "create"
 on-no-match = "write"
 enabled = true
 
-pattern = "{old}"
-replacement = "{new}"
+pattern = "{old}\n"
+replacement = "{new}\n"

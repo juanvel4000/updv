@@ -62,9 +62,9 @@ def process_file(
     if fd.line:
         lines = txt.splitlines(keepends=True)
         if txt == "":
-            return ProcessResult.error(fd.path, "cannot use 'line' if file is empty")
+            return ProcessResult.error(path, "cannot use 'line' if file is empty")
         if not (1 <= fd.line <= len(lines)):
-            return ProcessResult.error(fd.path, "line {fd.line} out of range")
+            return ProcessResult.error(path, f"line {fd.line} out of range")
 
         lines[fd.line - 1] = version + "\n"
         _ = path.write_text("".join(lines))
