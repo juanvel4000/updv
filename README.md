@@ -1,5 +1,11 @@
 # updv
 
+![pypi license](https://img.shields.io/pypi/l/updv)
+![pypi status](https://img.shields.io/pypi/status/updv)
+![pypi version](https://img.shields.io/pypi/v/updv)
+![github actions workflow status (publish)](https://img.shields.io/github/actions/workflow/status/juanvel4000/updv/publish.yml?label=publish)
+![github actions workflow status (tests)](https://img.shields.io/github/actions/workflow/status/juanvel4000/updv/tests.yml?label=tests)
+
 tiny version string updater written in python.
 
 `updv` updates a version string across a project from a single version value, using a configurable `TOML`-based configuration file. this keeps version values in source files, package metadata, documentation, and other project files synchronized.
