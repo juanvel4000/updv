@@ -209,11 +209,16 @@ def main():
         update_version(cfg, newver, dryrun, verbose)
     config = Configuration.from_toml(cfg)
     if bump:
+        try:
+            ba = int(bump_amount)
+        except ValueError:
+            print_error("error: the specified bump amount is not a valid integer")
+            sys.exit(1)
         run_bump(
             cfg,
             config.version,
             bump_type,
-            int(bump_amount),
+            ba,
             zero_lower,
             dryrun,
             verbose,

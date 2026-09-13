@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- validate the `bump_amount` integer
 - add a `updv.schema.json` schema
 - add issue templates
 - add badges to `README.md`

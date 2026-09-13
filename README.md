@@ -25,6 +25,10 @@ updv requires at least
 
 - a python 3.11 or newer interpreter
 
+runtime dependencies include
+
+- `packaging`: to parse and modify version strings
+
 development dependencies include
 
 - `pytest`: to execute the unit tests
