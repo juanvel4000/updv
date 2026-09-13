@@ -26,8 +26,8 @@ def print_help() -> None:
     print(f"  {'-V':<10} {'print the updv version'}")
     print(f"  {'-h':<10} {'show this message'}")
     print(f"  {'-v':<10} {'show detailed output'}")
-    print(f"  {'-v':<10} {'enable dry run mode'}")
-    print(f"  {'-x':<10} {"don't run the updv engine"}")
+    print(f"  {'-d':<10} {'enable dry run mode'}")
+    print(f"  {'-x':<10} {'skip running the updv engine'}")
     print(f"  {'-c file':<10} {'specify a config file'}")
     print(f"  {'-n version':<10} {'update version string in the config file'}")
 
