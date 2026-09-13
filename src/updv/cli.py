@@ -35,11 +35,7 @@ def print_help() -> None:
 def get_config(config: Path | None = None) -> Path:
     if config:
         if config.is_file():
-            try:
-                return config
-            except Exception as exc:
-                print_error(f"error: {exc}")
-                sys.exit(1)
+            return config
         else:
             print_error(f"error: {config} not found")
             sys.exit(1)
@@ -53,11 +49,7 @@ def get_config(config: Path | None = None) -> Path:
 
     for fil in options:
         if fil.is_file():
-            try:
-                return fil
-            except Exception as exc:
-                print_error(f"error: {exc}")
-                sys.exit(1)
+            return fil
 
     print_error("could not find a valid updv.toml")
     sys.exit(1)
@@ -97,22 +89,22 @@ def update_version(
 
     if not dryrun:
         vprint(f"writing to {cfg}", verbose)
-        cfg.write_text(txt)
+        _ = cfg.write_text(txt)
     else:
         print(f"dry run: would edit {cfg}")
 
     if not dryrun:
         vprint(f"verifying {cfg}")
         config = Configuration.from_toml(cfg)
-        if not config.version == newver:
+        if config.version != newver:
             vprint(f"attempting to rollback {cfg}")
-            cfg.write_text(old)
+            _ = cfg.write_text(old)
             print_error("updv: update_version failed")
             sys.exit(1)
 
-        if not config.previous_version == oldver:
+        if config.previous_version != oldver:
             vprint(f"attempting to rollback {cfg}")
-            cfg.write_text(old)
+            _ = cfg.write_text(old)
             print_error("updv: update_version failed")
             sys.exit(1)
     else:
@@ -133,7 +125,7 @@ def main():
         sys.exit(1)
 
     try:
-        opts, args = getopt(argv, "vVhdxc:n:")
+        opts, _ = getopt(argv, "vVhdxc:n:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -157,6 +149,9 @@ def main():
                 dryrun = True
             case "-x":
                 run = False
+            case _:
+                print_usage()
+                sys.exit(1)
 
     config = get_config(cfg)
     if newver:
