@@ -6,7 +6,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-from packaging.version import InvalidVersion, Version
+from packaging.version import Version
 
 
 class OnNoMatch(StrEnum):

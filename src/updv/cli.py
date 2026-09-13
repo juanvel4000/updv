@@ -133,7 +133,7 @@ def run_bump(
     """wrapper around parser.compute_bump"""
     vprint("running compute_bump", verbose)
     try:
-        v = compute_bump(version, int(bump_amount), bump_type, zero_lower)
+        v = compute_bump(version, bump_amount, bump_type, zero_lower)
         vprint(f"got {v}", verbose)
     except InvalidVersion:
         print_error(f"invalid version string: '{version}'")
@@ -161,7 +161,7 @@ def main():
         sys.exit(1)
 
     try:
-        opts, args = getopt(argv, "vVhdxgzc:n:b:a:")
+        opts, _ = getopt(argv, "vVhdxgzc:n:b:a:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -203,7 +203,13 @@ def main():
     config = Configuration.from_toml(cfg)
     if bump:
         run_bump(
-            cfg, config.version, bump_type, bump_amount, zero_lower, dryrun, verbose
+            cfg,
+            config.version,
+            bump_type,
+            int(bump_amount),
+            zero_lower,
+            dryrun,
+            verbose,
         )
         config = Configuration.from_toml(cfg)
     if run:

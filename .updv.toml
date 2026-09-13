@@ -1,7 +1,7 @@
 [project]
 name = "updv"
-version = "0.2.0"
-previous_version = "0.1.0"
+version = "0.3.0"
+previous_version = "0.2.0"
 
 [project.files.initpy]
 path = "src/{name}/__init__.py"
