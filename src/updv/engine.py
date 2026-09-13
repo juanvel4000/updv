@@ -89,7 +89,9 @@ def process_file(
     return ProcessResult.updated(path, "succeeded", matches=matches)
 
 
-def process_config(config: Configuration, verbose: bool = False) -> list[ProcessResult]:
+def process_config(
+    config: Configuration, verbose: bool = False, dryrun: bool = False
+) -> list[ProcessResult]:
     """process all files under Configuration"""
     old = config.previous_version
     new = config.version
@@ -98,8 +100,15 @@ def process_config(config: Configuration, verbose: bool = False) -> list[Process
 
     res = []
     for fd in config.files:
-        r = process_file(config.version, fd, old, new, name, date)
-        res.append(r)
         if verbose:
-            print(f"{fd.name}: {r.status}: {r.reason} ({r.matches})")
+            print(f"processing {fd.name}")
+        if not dryrun:
+            r = process_file(config.version, fd, old, new, name, date)
+            res.append(r)
+            if verbose:
+                print(f"{fd.name}: {r.status}: {r.reason} ({r.matches})")
+        else:
+            print(
+                f"dry run: would update {substitute(str(fd.path), old=old, new=new, name=name, date=date)}"
+            )
     return res

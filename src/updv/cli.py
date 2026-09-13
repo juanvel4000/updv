@@ -25,7 +25,8 @@ def print_help() -> None:
     print("options:")
     print(f"  {'-V':<10} {'print the updv version'}")
     print(f"  {'-h':<10} {'show this message'}")
-    print(f"  {'-v':<10} {'enable detailed output'}")
+    print(f"  {'-v':<10} {'show detailed output'}")
+    print(f"  {'-v':<10} {'enable dry run mode'}")
     print(f"  {'-x':<10} {"don't run the updv engine"}")
     print(f"  {'-c file':<10} {'specify a config file'}")
     print(f"  {'-n version':<10} {'update version string in the config file'}")
@@ -62,34 +63,61 @@ def get_config(config: Path | None = None) -> Path:
     sys.exit(1)
 
 
-def run_engine(config: Configuration, verbose: bool = False) -> None:
-    _ = process_config(config, verbose)
+def run_engine(
+    config: Configuration, verbose: bool = False, dryrun: bool = False
+) -> None:
+    _ = process_config(config, verbose, dryrun)
 
 
-def update_version(cfg: Path, newver: str) -> None:
+def vprint(s: str, verbose: bool = False) -> None:
+    if verbose:
+        print(s)
+
+
+def update_version(
+    cfg: Path, newver: str, dryrun: bool = False, verbose: bool = False
+) -> None:
     """duct tape to update the version string, blindly assumes the config file is proper TOML"""
+    vprint(f"reading config file: {cfg}", verbose)
     config = Configuration.from_toml(cfg)
     txt = cfg.read_text()
+    old = txt
+    vprint(f"updating version strings in {cfg}", verbose)
     txt = txt.replace(f'version = "{config.version}"', f'version = "{newver}"')
+    vprint(f"updating previous_version strings in {cfg}", verbose)
     txt = txt.replace(
         f'previous_version = "{config.previous_version}"',
         f'previous_version = "{config.version}"',
     )
     oldver = config.version
 
-    cfg.write_text(txt)
-    config = Configuration.from_toml(cfg)
-    if not config.version == newver:
-        print_error("updv: update_version failed")
-        sys.exit(1)
+    if not dryrun:
+        vprint(f"writing to {cfg}", verbose)
+        cfg.write_text(txt)
+    else:
+        print(f"dry run: would edit {cfg}")
 
-    if not config.previous_version == oldver:
-        print_error("updv: update_version failed")
-        sys.exit(1)
+    if not dryrun:
+        vprint(f"verifying {cfg}")
+        config = Configuration.from_toml(cfg)
+        if not config.version == newver:
+            vprint(f"attempting to rollback {cfg}")
+            cfg.write_text(old)
+            print_error("updv: update_version failed")
+            sys.exit(1)
+
+        if not config.previous_version == oldver:
+            vprint(f"attempting to rollback {cfg}")
+            cfg.write_text(old)
+            print_error("updv: update_version failed")
+            sys.exit(1)
+    else:
+        print("dry run: skipped verification")
 
 
 def main():
     verbose = False
+    dryrun = False
     config = None
     newver = None
     cfg = None
@@ -101,7 +129,7 @@ def main():
         sys.exit(1)
 
     try:
-        opts, args = getopt(argv, "vVhxc:n:")
+        opts, args = getopt(argv, "vVhdxc:n:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -121,10 +149,14 @@ def main():
                 cfg = Path(opt[1])
             case "-n":
                 newver = opt[1]
+            case "-d":
+                dryrun = True
+            case "-x":
+                run = False
 
     config = get_config(cfg)
     if newver:
-        update_version(config, newver)
+        update_version(config, newver, dryrun, verbose)
     if run:
-        run_engine(Configuration.from_toml(config), verbose)
+        run_engine(Configuration.from_toml(config), verbose, dryrun)
     sys.exit(0)
