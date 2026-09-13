@@ -89,7 +89,7 @@ def process_file(
     return ProcessResult.updated(path, "succeeded", matches=matches)
 
 
-def process_config(config: Configuration) -> list[ProcessResult]:
+def process_config(config: Configuration, verbose: bool = False) -> list[ProcessResult]:
     """process all files under Configuration"""
     old = config.previous_version
     new = config.version
@@ -98,5 +98,8 @@ def process_config(config: Configuration) -> list[ProcessResult]:
 
     res = []
     for fd in config.files:
-        res.append(process_file(config.version, fd, old, new, name, date))
+        r = process_file(config.version, fd, old, new, name, date)
+        res.append(r)
+        if verbose:
+            print(f"{fd.name}: {r.status}: {r.reason} ({r.matches})")
     return res
