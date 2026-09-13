@@ -6,7 +6,7 @@ updv updates a version string across a project, using a configurable `TOML`-base
 
 ## project status
 
-updv is in active development. while functional, it is **not yet production-ready** for real-world usage. known limitations are documented above.
+updv is in active development. while functional, it is **not yet production-ready** for real-world usage.
 
 - [CHANGELOG.md](CHANGELOG.md) -- release history
 - [CONTRIBUTING.md](CONTRIBUTING.md) -- how to report bugs and send patches
