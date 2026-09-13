@@ -6,6 +6,8 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from packaging.version import InvalidVersion, Version
+
 
 class OnNoMatch(StrEnum):
     SKIP = "skip"
@@ -82,3 +84,35 @@ class Configuration:
             previous_version=proj.get("previous_version", "0.0.0"),
             files=[FileDescriptor.from_dict(k, item) for k, item in files.items()],
         )
+
+
+def compute_bump(
+    version: str = "0.1.0",
+    bump_amount: int = 1,
+    bump_type: str = "minor",
+    zero_lower: bool = True,
+) -> str:
+    v = Version(version)
+
+    major = v.major
+    minor = v.minor
+    patch = v.micro
+
+    type = bump_type.strip().lower()
+    if type not in ["major", "minor", "patch"]:
+        raise ValueError(f"{bump_type} is not one of: major, minor, patch")
+
+    match type:
+        case "major":
+            major += bump_amount
+            if zero_lower:
+                minor = 0
+                patch = 0
+        case "minor":
+            minor += bump_amount
+            if zero_lower:
+                patch = 0
+        case "patch":
+            patch += bump_amount
+
+    return f"{major}.{minor}.{patch}"

@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- add git support to updv
+- add a `bump` function
+- add basic git support
 - add a `publish.yml` workflow
 - add a `tests.yml` workflow
 - expand the `README.md` contents

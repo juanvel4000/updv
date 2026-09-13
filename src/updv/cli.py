@@ -5,9 +5,11 @@ from getopt import GetoptError, getopt
 from importlib.metadata import version
 from pathlib import Path
 
+from packaging.version import InvalidVersion
+
 from .engine import process_config
 from .git import git_commit_updates, git_tag
-from .parser import Configuration
+from .parser import Configuration, compute_bump
 
 
 def print_error(
@@ -17,7 +19,10 @@ def print_error(
 
 
 def print_usage() -> None:
-    print("usage: updv [-vVxhg] [-c file] [-n version]", file=sys.stderr)
+    print(
+        "usage: updv [-vVxhgz] [-c file] [-n version] [-b type] [-a amount]",
+        file=sys.stderr,
+    )
 
 
 def print_help() -> None:
@@ -30,6 +35,9 @@ def print_help() -> None:
     print(f"  {'-d':<10} {'enable dry run mode'}")
     print(f"  {'-x':<10} {'skip running the updv engine'}")
     print(f"  {'-g':<10} {'commit and tag the version with git'}")
+    print(f"  {'-b':<10} {'bump a section of the version tag'}")
+    print(f"  {'-z':<10} {'set everything lower to zero with bump'}")
+    print(f"  {'-a amount':<10} {'the amount to add with bump'}")
     print(f"  {'-c file':<10} {'specify a config file'}")
     print(f"  {'-n version':<10} {'update version string in the config file'}")
 
@@ -71,7 +79,7 @@ def vprint(s: str, verbose: bool = False) -> None:
 def update_version(
     cfg: Path, newver: str, dryrun: bool = False, verbose: bool = False
 ) -> None:
-    """duct tape to update the version string, blindly assumes the config file is proper TOML"""
+    """naive method to update the version string, blindly assumes the config file is proper TOML"""
     vprint(f"reading config file: {cfg}", verbose)
     config = Configuration.from_toml(cfg)
     if config.version == newver:
@@ -113,6 +121,26 @@ def update_version(
         print("dry run: skipped verification")
 
 
+def run_bump(
+    cfg: Path,
+    version: str = "0.1.0",
+    bump_type: str = "minor",
+    bump_amount: int = 1,
+    zero_lower: bool = False,
+    dryrun: bool = False,
+    verbose: bool = False,
+) -> None:
+    """wrapper around parser.compute_bump"""
+    vprint("running compute_bump", verbose)
+    try:
+        v = compute_bump(version, int(bump_amount), bump_type, zero_lower)
+        vprint(f"got {v}", verbose)
+    except InvalidVersion:
+        print_error(f"invalid version string: '{version}'")
+        sys.exit(1)
+    update_version(cfg, v, dryrun, verbose)
+
+
 def main():
     verbose = False
     dryrun = False
@@ -123,13 +151,17 @@ def main():
     argc = len(argv)
     run = True
     git = False
+    bump = False
+    bump_type = "minor"
+    bump_amount = 1
+    zero_lower = False
 
     if argc == 0:
         print_usage()
         sys.exit(1)
 
     try:
-        opts, _ = getopt(argv, "vVhdxgc:n:")
+        opts, args = getopt(argv, "vVhdxgzc:n:b:a:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -155,14 +187,25 @@ def main():
                 run = False
             case "-g":
                 git = True
+            case "-b":
+                bump = True
+                bump_type = opt[1] or "minor"
+            case "-a":
+                bump_amount = opt[1]
+            case "-z":
+                zero_lower = True
             case _:
                 print_usage()
                 sys.exit(1)
-
     cfg = get_config(cfg)
     if newver:
         update_version(cfg, newver, dryrun, verbose)
     config = Configuration.from_toml(cfg)
+    if bump:
+        run_bump(
+            cfg, config.version, bump_type, bump_amount, zero_lower, dryrun, verbose
+        )
+        config = Configuration.from_toml(cfg)
     if run:
         run_engine(config, verbose, dryrun)
     if git and git_commit_updates(config):
