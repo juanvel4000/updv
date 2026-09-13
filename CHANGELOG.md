@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Fixed
+
+### Removed
+
+## [0.1.0] - 2026-09-13
+
+### Added
+
 - add a basic unit test for `engine.py`
 - add a basic engine (`engine.py`)
 - add a basic unit test for `parser.py`
