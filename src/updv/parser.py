@@ -39,7 +39,7 @@ class FileDescriptor:
     def from_dict(cls, name: str, d: dict[str, Any]) -> "FileDescriptor":
         """initialize a FileDescriptor instance from a dict"""
 
-        if not "path" in d:
+        if "path" not in d:
             raise ValueError(f"'path' key not found in files['{name}']")
 
         if not isinstance(d.get("path"), (str, Path)):

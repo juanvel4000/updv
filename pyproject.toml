@@ -44,5 +44,6 @@ build-backend = "hatchling.build"
 dev = [
     "pytest",
     "pytest-asyncio",
-    "ruff"
+    "ruff",
+    "packaging",
 ]
