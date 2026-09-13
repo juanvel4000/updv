@@ -54,7 +54,7 @@ def process_file(
             case OnMissingFile.SKIP:
                 return ProcessResult.skipped(path, "missing file")
             case OnMissingFile.FAIL:
-                raise FileNotFoundError(f"{path} not found")
+                return ProcessResult.error(path, "missing file")
             case OnMissingFile.CREATE:
                 path.touch()
 
@@ -75,7 +75,7 @@ def process_file(
         if n == 0:
             match fd.on_no_match:
                 case OnNoMatch.FAIL:
-                    raise FileNotFoundError(f"{fd.name}: match not found")
+                    return ProcessResult.error(path, "match not found")
                 case OnNoMatch.SKIP:
                     return ProcessResult.skipped(path, "match not found")
                 case OnNoMatch.APPEND:
@@ -89,11 +89,9 @@ def process_file(
     return ProcessResult.updated(path, "succeeded", matches=matches)
 
 
-def process_config(
-    config: Configuration, previous_version: str = ""
-) -> list[ProcessResult]:
+def process_config(config: Configuration) -> list[ProcessResult]:
     """process all files under Configuration"""
-    old = previous_version
+    old = config.previous_version
     new = config.version
     name = config.name
     date = datetime.now(UTC).strftime("%Y-%m-%d")
