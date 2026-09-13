@@ -1,7 +1,7 @@
 """parse and read config files"""
 
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 from typing import Any
@@ -62,8 +62,9 @@ class Configuration:
 
     name: str = ""
     version: str = "0.1.0"
+    previous_version: str = "0.0.0"
 
-    files: list[FileDescriptor] | None = None
+    files: list[FileDescriptor] = field(default_factory=list)
 
     @classmethod
     def from_toml(cls, path: Path | str) -> "Configuration":
@@ -78,5 +79,6 @@ class Configuration:
         return cls(
             name=proj.get("name", "updv"),
             version=proj.get("version", "0.1.0"),
+            previous_version=proj.get("previous_version", "0.0.0"),
             files=[FileDescriptor.from_dict(k, item) for k, item in files.items()],
         )
