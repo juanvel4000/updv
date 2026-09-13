@@ -9,7 +9,7 @@ from updv.parser import Configuration, OnMissingFile, OnNoMatch
 
 
 @pytest.fixture
-def config(tmp_path: Path):
+def config(tmp_path: Path) -> Configuration:
     VALID_TOML = """
     [project]
     name = "updv"
