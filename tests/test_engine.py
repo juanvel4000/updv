@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -23,7 +23,7 @@ def config(tmp_path: Path, example_file: Path) -> Configuration:
     previous_version = "0.0.0"
 
     [project.files.version]
-    path = "{str(example_file)}"
+    path = "{example_file!s}"
     on-missing-file = "fail"
     on-no-match = "fail"
     enabled = true
@@ -58,7 +58,7 @@ def test_process_file(config: Configuration):
             old="0.0.0",
             new="0.1.0",
             name="updv",
-            date=datetime.now().strftime("%Y-%m-%d"),
+            date=datetime.now(UTC).strftime("%Y-%m-%d"),
         ).status
         == "updated"
     )
@@ -72,7 +72,7 @@ def test_process_skipped(config: Configuration):
         old="0.0.0",
         new="0.1.0",
         name="updv",
-        date=datetime.now().strftime("%Y-%m-%d"),
+        date=datetime.now(UTC).strftime("%Y-%m-%d"),
     )
     assert res.status == "skipped"
     assert res.reason == "missing file"
@@ -82,6 +82,6 @@ def test_substitute():
     old = "0.0.0"
     new = "0.1.0"
     name = "updv"
-    date = datetime.now().strftime("%Y-%m-%d")
+    date = datetime.now(UTC).strftime("%Y-%m-%d")
     n = substitute("{old} {new} {name} {date}", old=old, new=new, name=name, date=date)
     assert n == f"{old} {new} {name} {date}"

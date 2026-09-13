@@ -2,7 +2,7 @@
 
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Literal
 
@@ -65,7 +65,7 @@ def process_file(
             raise IndexError(f"{fd.name}: line {fd.line} out of range")
 
         lines[fd.line - 1] = version + "\n"
-        path.write_text("".join(lines))
+        _ = path.write_text("".join(lines))
         matches = 1
     else:
         pattern = substitute(fd.pattern, old=old, new=new, name=name, date=date)
@@ -84,7 +84,7 @@ def process_file(
                     new_text = replacement + "\n" + txt
                 case OnNoMatch.WRITE:
                     new_text = replacement
-        path.write_text(new_text)
+        _ = path.write_text(new_text)
 
     return ProcessResult.updated(path, "succeeded", matches=matches)
 
@@ -96,7 +96,7 @@ def process_config(
     old = previous_version
     new = config.version
     name = config.name
-    date = datetime.now().strftime("%Y-%m-%d")
+    date = datetime.now(UTC).strftime("%Y-%m-%d")
 
     res = []
     for fd in config.files:
