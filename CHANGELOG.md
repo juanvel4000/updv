@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- add a basic `cli.py`
+
 ### Changed
 
 - return `ProcessResult.error` for `OnMissingFile.FAIL` and `OnNoMatch.FAIL` (`engine.py`)

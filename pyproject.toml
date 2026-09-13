@@ -47,3 +47,6 @@ dev = [
     "ruff",
     "packaging",
 ]
+
+[project.scripts]
+updv = "updv.cli:main"

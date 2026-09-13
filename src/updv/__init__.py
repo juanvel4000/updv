@@ -1,3 +1,4 @@
+from .cli import main
 from .engine import ProcessResult, process_config, process_file
 from .parser import Configuration, FileDescriptor
 
@@ -6,6 +7,7 @@ __all__ = [
     "Configuration",
     "FileDescriptor",
     "ProcessResult",
+    "main",
     "process_config",
     "process_file",
 ]
