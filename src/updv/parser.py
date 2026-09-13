@@ -4,6 +4,7 @@ import tomllib
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 
 class OnNoMatch(StrEnum):
@@ -35,17 +36,23 @@ class FileDescriptor:
     replacement: str = ""
 
     @classmethod
-    def from_dict(cls, name: str, d: dict[str, str | int]) -> "FileDescriptor":
+    def from_dict(cls, name: str, d: dict[str, Any]) -> "FileDescriptor":
         """initialize a FileDescriptor instance from a dict"""
+
+        if not "path" in d:
+            raise ValueError(f"'path' key not found in files['{name}']")
+
+        if not isinstance(d.get("path"), (str, Path)):
+            raise TypeError(f"files['{name}']['path'] is not a Path or str.")
         return cls(
             name=name,
-            path=Path(d.get("path")),
-            on_no_match=OnNoMatch(d.get("on-no-match")),
-            on_missing_file=OnMissingFile(d.get("on-missing-file")),
-            line=d.get("line", 0),
-            enabled=d.get("enabled", True),
-            pattern=d.get("pattern"),
-            replacement=d.get("replacement"),
+            path=Path(d["path"]),
+            on_no_match=OnNoMatch(d.get("on-no-match", "skip")),
+            on_missing_file=OnMissingFile(d.get("on-missing-file", "skip")),
+            line=int(d.get("line", 0)),
+            enabled=bool(d.get("enabled", True)),
+            pattern=str(d.get("pattern", "")),
+            replacement=str(d.get("replacement", "")),
         )
 
 
