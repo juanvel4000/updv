@@ -80,6 +80,10 @@ def update_version(
     """duct tape to update the version string, blindly assumes the config file is proper TOML"""
     vprint(f"reading config file: {cfg}", verbose)
     config = Configuration.from_toml(cfg)
+    if config.version == newver:
+        print_error("new version cannot be the same as the current one.")
+        sys.exit(1)
+
     txt = cfg.read_text()
     old = txt
     vprint(f"updating version strings in {cfg}", verbose)
