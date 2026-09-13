@@ -6,6 +6,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 from .engine import process_config
+from .git import git_commit_updates, git_tag
 from .parser import Configuration
 
 
@@ -16,7 +17,7 @@ def print_error(
 
 
 def print_usage() -> None:
-    print("usage: updv [-vVxh] [-c file] [-n version]", file=sys.stderr)
+    print("usage: updv [-vVxhg] [-c file] [-n version]", file=sys.stderr)
 
 
 def print_help() -> None:
@@ -28,6 +29,7 @@ def print_help() -> None:
     print(f"  {'-v':<10} {'show detailed output'}")
     print(f"  {'-d':<10} {'enable dry run mode'}")
     print(f"  {'-x':<10} {'skip running the updv engine'}")
+    print(f"  {'-g':<10} {'commit and tag the version with git'}")
     print(f"  {'-c file':<10} {'specify a config file'}")
     print(f"  {'-n version':<10} {'update version string in the config file'}")
 
@@ -120,12 +122,14 @@ def main():
     argv = sys.argv[1:]
     argc = len(argv)
     run = True
+    git = False
+
     if argc == 0:
         print_usage()
         sys.exit(1)
 
     try:
-        opts, _ = getopt(argv, "vVhdxc:n:")
+        opts, _ = getopt(argv, "vVhdxgc:n:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -149,13 +153,18 @@ def main():
                 dryrun = True
             case "-x":
                 run = False
+            case "-g":
+                git = True
             case _:
                 print_usage()
                 sys.exit(1)
 
-    config = get_config(cfg)
+    cfg = get_config(cfg)
     if newver:
-        update_version(config, newver, dryrun, verbose)
+        update_version(cfg, newver, dryrun, verbose)
+    config = Configuration.from_toml(cfg)
     if run:
-        run_engine(Configuration.from_toml(config), verbose, dryrun)
+        run_engine(config, verbose, dryrun)
+    if git and git_commit_updates(config):
+        git_tag(config)
     sys.exit(0)
