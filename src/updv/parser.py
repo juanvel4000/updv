@@ -98,11 +98,11 @@ def compute_bump(
     minor = v.minor
     patch = v.micro
 
-    type = bump_type.strip().lower()
-    if type not in ["major", "minor", "patch"]:
+    bt = bump_type.strip().lower()
+    if bt not in ["major", "minor", "patch"]:
         raise ValueError(f"{bump_type} is not one of: major, minor, patch")
 
-    match type:
+    match bt:
         case "major":
             major += bump_amount
             if zero_lower:
