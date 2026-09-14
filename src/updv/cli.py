@@ -20,7 +20,7 @@ def print_error(
 
 def print_usage() -> None:
     print(
-        "usage: updv [-vVxhgz] [-c file] [-n version] [-b type] [-a amount]",
+        "usage: updv [-vVxhgz] [-c file] [-n version] [-b type] [-a amount] [-t message]",
         file=sys.stderr,
     )
 
@@ -38,6 +38,7 @@ def print_help() -> None:
     print(f"  {'-b':<10} {'bump a section of the version tag'}")
     print(f"  {'-z':<10} {'set everything lower to zero with bump'}")
     print(f"  {'-a amount':<10} {'the amount to add with bump'}")
+    print(f"  {'-t message':<10} {'specify a message for the git tag'}")
     print(f"  {'-c file':<10} {'specify a config file'}")
     print(f"  {'-n version':<10} {'update version string in the config file'}")
 
@@ -162,13 +163,14 @@ def main():
     bump_type = "minor"
     bump_amount = 1
     zero_lower = False
+    tag_message = ""
 
     if argc == 0:
         print_usage()
         sys.exit(1)
 
     try:
-        opts, _ = getopt(argv, "vVhdxgzc:n:b:a:")
+        opts, _ = getopt(argv, "vVhdxgzc:n:b:a:t:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -201,6 +203,8 @@ def main():
                 bump_amount = opt[1]
             case "-z":
                 zero_lower = True
+            case "-t":
+                tag_message = opt[1]
             case _:
                 print_usage()
                 sys.exit(1)
@@ -227,5 +231,5 @@ def main():
     if run:
         run_engine(config, verbose, dryrun)
     if git and git_commit_updates(config):
-        git_tag(config)
+        git_tag(config, tag_message)
     sys.exit(0)

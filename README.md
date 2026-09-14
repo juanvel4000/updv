@@ -41,6 +41,12 @@ clone the repository and install `updv` in editable mode.
 python -m pip install -e .
 ```
 
+or install via PyPI
+
+```sh
+python -m pip install updv
+```
+
 ## configuration
 
 create a project configuration from the included example:
