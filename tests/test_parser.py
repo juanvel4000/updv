@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from packaging.version import Version
 
-from updv.parser import Configuration, OnMissingFile, OnNoMatch
+from updv.parser import Configuration, OnMissingFile, OnNoMatch, compute_bump
 
 
 @pytest.fixture
@@ -57,3 +57,13 @@ def test_missing_path_raises_value_error(tmp_path: Path):
 
     with pytest.raises(ValueError, match="'path' key not found"):
         _ = Configuration.from_toml(p)
+
+
+def test_compute_bump():
+    assert compute_bump("0.1.1", 2, "minor", True) == "0.3.0"
+    assert compute_bump("0.1.0rc1+123.pre1", 1, "minor", True) == "0.2.0"
+    assert compute_bump("1.2.3", 1, "major", True) == "2.0.0"
+    assert compute_bump("0.1.1", 1, "minor", False) == "0.2.1"
+    assert compute_bump("1.1.1", 2, "major", False) == "3.1.1"
+    assert compute_bump("0.1.0rc1+123.pre1", 1, "major", False) == "1.1.0"
+    assert compute_bump("1.2.3", 1, "major", False) == "2.2.3"
