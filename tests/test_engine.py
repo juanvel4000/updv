@@ -58,7 +58,7 @@ def config(tmp_path: Path, example_file: Path) -> Configuration:
 
 def test_process_config(config: Configuration):
     res = process_config(config)
-    assert res[0].status == "updated"
+    assert res[0][0].status == "updated"
 
 
 def test_process_file(config: Configuration):
@@ -110,7 +110,7 @@ def test_substitute():
 def test_process_file_custom_placeholders(config: Configuration):
     fd = config.files[2]
     fd.enabled = True
-    fd.path.write_text("original")
+    _ = fd.path.write_text("original")
     assert (
         process_file(
             "0.1.0",

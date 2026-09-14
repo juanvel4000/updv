@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- add support for a `-q` flag (`cli.py`, `engine.py`)
 - add a file rollback system (`engine.py`)
 - add prettier terminal output (`engine.py`)
 - add custom placeholder support via `[project.vars]`

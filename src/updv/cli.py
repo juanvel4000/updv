@@ -20,7 +20,7 @@ def print_error(
 
 def print_usage() -> None:
     print(
-        "usage: updv [-vVxhgz] [-c file] [-n version] [-b type] [-a amount] [-t message]",
+        "usage: updv [-vVxhgzq] [-c file] [-n version] [-b type] [-a amount] [-t message]",
         file=sys.stderr,
     )
 
@@ -32,6 +32,7 @@ def print_help() -> None:
     print(f"  {'-V':<10} {'print the updv version'}")
     print(f"  {'-h':<10} {'show this message'}")
     print(f"  {'-v':<10} {'show detailed output'}")
+    print(f"  {'-q':<10} {'try to hide all output'}")
     print(f"  {'-d':<10} {'enable dry run mode'}")
     print(f"  {'-x':<10} {'skip running the updv engine'}")
     print(f"  {'-g':<10} {'commit and tag the version with git'}")
@@ -67,9 +68,12 @@ def get_config(config: Path | None = None) -> Path:
 
 
 def run_engine(
-    config: Configuration, verbose: bool = False, dryrun: bool = False
+    config: Configuration,
+    verbose: bool = False,
+    dryrun: bool = False,
+    quiet: bool = False,
 ) -> None:
-    result = process_config(config, verbose, dryrun)
+    result = process_config(config, verbose, dryrun, quiet)
     error = result[1]
     if error:
         sys.exit(1)
@@ -159,6 +163,7 @@ def main():
     bump_type = "minor"
     bump_amount = 1
     zero_lower = False
+    quiet = False
     tag_message = ""
 
     if argc == 0:
@@ -166,7 +171,7 @@ def main():
         sys.exit(1)
 
     try:
-        opts, _ = getopt(argv, "vVhdxgzc:n:b:a:t:")
+        opts, _ = getopt(argv, "vVxhgzqc:n:b:a:t:")
     except GetoptError as exc:
         print(f"updv: {exc}", file=sys.stderr)
         print_usage()
@@ -201,6 +206,9 @@ def main():
                 zero_lower = True
             case "-t":
                 tag_message = opt[1]
+            case "-q":
+                quiet = True
+                verbose = False
             case _:
                 print_usage()
                 sys.exit(1)
@@ -225,7 +233,7 @@ def main():
         )
         config = Configuration.from_toml(cfg)
     if run:
-        run_engine(config, verbose, dryrun)
+        run_engine(config, verbose, dryrun, quiet)
     if git and git_commit_updates(config):
         git_tag(config, tag_message)
     sys.exit(0)

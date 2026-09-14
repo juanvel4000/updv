@@ -146,15 +146,16 @@ def process_config(
         if not fd.enabled:
             continue
         path = path_resolve(fd.path, config)
-        if verbose:
+        if verbose and not quiet:
             print(f"taking snapshot of {path}")
         if not dryrun and path.exists():
             snapshots[path] = path.read_text()
         else:
-            print("dry run: skipping snapshot")
+            if not quiet:
+                print("dry run: skipping snapshot")
 
     for fd in config.files:
-        if verbose:
+        if verbose and not quiet:
             print(f"processing {fd.name}")
         if not dryrun:
             r = process_file(
@@ -177,21 +178,24 @@ def process_config(
 
             res.append(r)
             if r.status == "error":
-                if verbose:
+                if verbose and not quiet:
                     print(f"{fd.name} failed, running rollback on all files.")
                 if not quiet and not verbose:
                     print(f" \033[34m>\033[0m \033[35m\033[1mROLLBACK\033[0m")
                 rollback = True
                 break
-            if verbose:
+            if verbose and not quiet:
                 matches = "match" if r.matches == 1 else "matches"
                 print(f"{fd.name}: {r.status}: {r.reason} ({r.matches} {matches})")
         else:
-            print(f"{fd.name}: dry run: would update {path_resolve(fd.path, config)}")
+            if verbose and not quiet:
+                print(
+                    f"{fd.name}: dry run: would update {path_resolve(fd.path, config)}"
+                )
     if rollback and not dryrun:
         for fd in config.files:
             path = path_resolve(fd.path, config)
-            if verbose:
+            if verbose and not quiet:
                 print(f"running rollback on {fd.name} ({path})")
             _ = path.write_text(snapshots[path])
 
