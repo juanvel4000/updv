@@ -69,12 +69,8 @@ def get_config(config: Path | None = None) -> Path:
 def run_engine(
     config: Configuration, verbose: bool = False, dryrun: bool = False
 ) -> None:
-    error = False
     result = process_config(config, verbose, dryrun)
-    for res in result:
-        if res.status == "error":
-            print(f"{res.path}: error: {res.reason}")
-            error = True
+    error = result[1]
     if error:
         sys.exit(1)
 

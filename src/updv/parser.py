@@ -27,8 +27,8 @@ class OnMissingFile(StrEnum):
 class FileDescriptor:
     """represents a target file configuration"""
 
-    name: str = ""
-    path: Path | None = None
+    name: str
+    path: Path
     on_no_match: OnNoMatch = OnNoMatch.SKIP
     on_missing_file: OnMissingFile = OnMissingFile.SKIP
     line: int = 0

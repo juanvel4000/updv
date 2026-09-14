@@ -65,6 +65,8 @@ edit `.updv.toml` to define which files and version values updv should update.
 > version = "0.0.0"
 > previous_version = "0.0.0"
 >
+> [project.vars]
+> changelog_header = "Unreleased"
 > [project.files.initpy]
 > path = "src/{name}/__init__.py"
 > on-missing-file = "fail"
@@ -80,7 +82,7 @@ edit `.updv.toml` to define which files and version values updv should update.
 > on-no-match = "skip"
 > enabled = true
 >
-> pattern = "## \\[Unreleased\\]"
+> pattern = "## \\[{changelog_header}\\]"
 > replacement = "## [{new}] - {date}"
 >
 > [project.files.version]
@@ -94,6 +96,7 @@ edit `.updv.toml` to define which files and version values updv should update.
 > ```
 >
 > paths, patterns, and replacements support project and version variables such as `{old}`, `{new}`, `{name}`, and `{date}`.
+> custom placeholders can be added through the `[project.vars]` section on the configuration file.
 
 ### policies
 
