@@ -67,6 +67,7 @@ class Configuration:
     previous_version: str = "0.0.0"
 
     files: list[FileDescriptor] = field(default_factory=list)
+    extra_vars: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_toml(cls, path: Path | str) -> "Configuration":
@@ -82,6 +83,7 @@ class Configuration:
             name=proj.get("name", "updv"),
             version=proj.get("version", "0.1.0"),
             previous_version=proj.get("previous_version", "0.0.0"),
+            extra_vars=proj.get("vars", {}),
             files=[FileDescriptor.from_dict(k, item) for k, item in files.items()],
         )
 

@@ -3,6 +3,9 @@ name = "updv"
 version = "0.1.0"
 previous_version = "0.0.0"
 
+[project.vars]
+changelog_header = "Unreleased"
+
 [project.files.initpy]
 path = "src/{name}/__init__.py"
 on-missing-file = "fail"
@@ -18,7 +21,7 @@ on-missing-file = "fail"
 on-no-match = "fail"
 enabled = true
 
-pattern = "## \\[Unreleased\\]"
+pattern = "## \\[{changelog_header}\\]"
 replacement = "## [{new}] - {date}"
 
 [project.files.version]

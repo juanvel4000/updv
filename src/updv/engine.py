@@ -1,6 +1,7 @@
 """core updv engine"""
 
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -31,21 +32,30 @@ class ProcessResult:
         return cls(path, "skipped", reason=reason)
 
 
-def substitute(template: str, *, old: str, new: str, name: str, date: str) -> str:
-    return (
-        template.replace("{old}", old)
-        .replace("{new}", new)
-        .replace("{name}", name)
-        .replace("{date}", date)
-    )
+def substitute(
+    template: str, *, old: str, new: str, name: str, date: str, **extra
+) -> str:
+    values = {"old": old, "new": new, "name": name, "date": date, **extra}
+    for key, val in values.items():
+        template = template.replace(f"{{{key}}}", val)
+    return template
 
 
 def process_file(
-    version: str, fd: FileDescriptor, old: str, new: str, name: str, date: str
+    version: str,
+    fd: FileDescriptor,
+    old: str,
+    new: str,
+    name: str,
+    date: str,
+    extra: dict[str, str] | None = None,
 ) -> ProcessResult:
     """process and write the new version to a file"""
+    extra = extra or {}
     matches = 0
-    path = Path(substitute(str(fd.path), old=old, new=new, name=name, date=date))
+    path = Path(
+        substitute(str(fd.path), old=old, new=new, name=name, date=date, **extra)
+    )
     if not fd.enabled:
         return ProcessResult.skipped(path, f"{fd.name} is disabled")
 
@@ -70,8 +80,12 @@ def process_file(
         _ = path.write_text("".join(lines))
         matches = 1
     else:
-        pattern = substitute(fd.pattern, old=old, new=new, name=name, date=date)
-        replacement = substitute(fd.replacement, old=old, new=new, name=name, date=date)
+        pattern = substitute(
+            fd.pattern, old=old, new=new, name=name, date=date, **extra
+        )
+        replacement = substitute(
+            fd.replacement, old=old, new=new, name=name, date=date, **extra
+        )
 
         new_text, n = re.subn(pattern, replacement, txt)
         if n == 0:
@@ -106,12 +120,14 @@ def process_config(
         if verbose:
             print(f"processing {fd.name}")
         if not dryrun:
-            r = process_file(config.version, fd, old, new, name, date)
+            r = process_file(
+                config.version, fd, old, new, name, date, config.extra_vars
+            )
             res.append(r)
             if verbose:
                 print(f"{fd.name}: {r.status}: {r.reason} ({r.matches})")
         else:
             print(
-                f"dry run: would update {substitute(str(fd.path), old=old, new=new, name=name, date=date)}"
+                f"dry run: would update {substitute(str(fd.path), old=old, new=new, name=name, date=date, **config.extra_vars)}"
             )
     return res

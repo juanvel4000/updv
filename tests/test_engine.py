@@ -22,13 +22,17 @@ def config(tmp_path: Path, example_file: Path) -> Configuration:
     version = "0.1.0"
     previous_version = "0.0.0"
 
+    [project.vars]
+    header = "original"
+    newheader = "edit"
+
     [project.files.version]
     path = "{example_file!s}"
     on-missing-file = "fail"
     on-no-match = "fail"
     enabled = true
-    pattern = '{{old}}'
-    replacement = '{{new}}'
+    pattern = "{{old}}"
+    replacement = "{{new}}"
 
     [project.files.invalid]
     path = "{tmp_path}/does_not_exist"
@@ -37,6 +41,14 @@ def config(tmp_path: Path, example_file: Path) -> Configuration:
     enabled = true
     pattern = '{{old}}'
     replacement = '{{new}}'
+
+    [project.files.vars]
+    path = "{tmp_path}/varsfile"
+    on-missing-file = "fail"
+    on-no-match = "fail"
+    enabled = false
+    pattern = "{{header}}"
+    replacement = "{{newheader}}"
     """
 
     p = Path(tmp_path / "updv.toml")
@@ -82,6 +94,34 @@ def test_substitute():
     old = "0.0.0"
     new = "0.1.0"
     name = "updv"
+    custom = "custom"
     date = datetime.now(UTC).strftime("%Y-%m-%d")
-    n = substitute("{old} {new} {name} {date}", old=old, new=new, name=name, date=date)
-    assert n == f"{old} {new} {name} {date}"
+    n = substitute(
+        "{old} {new} {name} {date} {custom}",
+        old=old,
+        new=new,
+        name=name,
+        date=date,
+        custom=custom,
+    )
+    assert n == f"{old} {new} {name} {date} {custom}"
+
+
+def test_process_file_custom_placeholders(config: Configuration):
+    fd = config.files[2]
+    fd.enabled = True
+    fd.path.write_text("original")
+    assert (
+        process_file(
+            "0.1.0",
+            fd,
+            old="0.0.0",
+            new="0.1.0",
+            name="updv",
+            date=datetime.now(UTC).strftime("%Y-%m-%d"),
+            extra=config.extra_vars,
+        ).status
+        == "updated"
+    )
+
+    assert fd.path.read_text() == "edit"

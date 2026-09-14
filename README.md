@@ -93,7 +93,7 @@ edit `.updv.toml` to define which files and version values updv should update.
 > replacement = "{new}"
 > ```
 >
-> paths, patterns, and replacements support project and version variables such as `{old}`, `{new}`, `{version}`, `{name}`, and `{date}`.
+> paths, patterns, and replacements support project and version variables such as `{old}`, `{new}`, `{name}`, and `{date}`.
 
 ### policies
 

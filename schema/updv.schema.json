@@ -20,6 +20,11 @@
           "type": "string",
           "description": "previous project version, usable as {old} in paths/patterns/replacements"
         },
+        "vars": {
+          "type": "object",
+          "description": "custom placeholders usable as {key} in paths/patterns/replacements",
+          "additionalProperties": { "type": "string" }
+        },
         "files": {
           "type": "object",
           "description": "per-file update policies, keyed by an arbitrary identifier",
